@@ -1,14 +1,14 @@
 import sys
 from easy_pack import EasyPackModule
-from os import path
+import os
 
 module = EasyPackModule.read('.')
-if not path.exists('setup/setup.py') or path.getctime('__info__.py') > path.getctime('setup/setup.py'):
+if not os.path.exists('setup/setup.py') or os.path.getctime('__info__.py') > os.path.getctime('setup/setup.py'):
 	print('package info file has changed, rebuilding setup')
 	module.create_setup_files('../setup')
 build = module.build_module('python-build')
 if build:
-	print('build succeded')
+	print(f'build succeeded: {build}')
 	if '-upload' in sys.argv:
 		import os
 		username = ""
@@ -24,7 +24,7 @@ if build:
 	else:
 		print('use twine upload --repository-url [pypi-repository-url] dist/* to upload the package')
 	if '-install' in sys.argv:
-		os.system('cd ' + build + '; pip install .')
+		os.system(f'pip install ./{build}')
 	module.save('.')
 else:
 	print('build failed')
