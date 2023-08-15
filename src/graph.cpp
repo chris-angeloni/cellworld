@@ -21,9 +21,13 @@ namespace cell_world {
     }
 
     float Graph::get_degree_complexity(float base, bool normalized) {
-        vector<unsigned int> degree_counts(this->size(), 0);
+        auto connected_nodes = this->count([](const Cell_group &c){ return !c.empty();});
+        vector<unsigned int> degree_counts(connected_nodes, 0);
         for (unsigned int i=0; i<this->size(); i++){
-            degree_counts[(*this)[i].size()] ++;
+            auto c = (*this)[i].size();
+            if (c) {
+                degree_counts[c - 1]++;
+            }
         }
         return weights_entropy(degree_counts, base, normalized);
     }

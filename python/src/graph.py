@@ -1,3 +1,5 @@
+import math
+
 import networkx as nx
 from .info import normalized_entropy, entropy
 from .cell import Cell_map, Cell_group, Cell, Cell_group_builder
@@ -104,9 +106,9 @@ class Graph:
     def vertex_degrees(self, cell: Cell) -> int:
         return len(self[cell])
 
-    def complexity(self, normalized: bool = False):
+    def complexity(self, base: float = math.e, normalized: bool = False):
         counters = [len(c) for c in self._connections if c]
         if normalized:
-            return normalized_entropy(counters, labels=list(range(1, len(self._connections))))
+            return normalized_entropy(counters, labels=list(range(1, len(counters))), base=base)
         else:
-            return entropy(counters, labels=list(range(1, len(self._connections))))
+            return entropy(counters, labels=list(range(1, len(counters))), base=base)
