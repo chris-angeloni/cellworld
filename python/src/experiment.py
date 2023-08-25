@@ -28,7 +28,7 @@ class Step(JsonObject):
 
 class Velocities(JsonList):
     def __init__(self, iterable=None):
-        JsonList.__init__(self, iterable, list_type=float)
+        JsonList.__init__(self, iterable=iterable, list_type=float)
 
     def complementary_filter(self, a: float): #complementary filter
         if a <= 0 or a >= 1:
@@ -73,7 +73,7 @@ class Velocities(JsonList):
 
 class Trajectories(JsonList):
     def __init__(self, iterable=None):
-        JsonList.__init__(self, iterable, list_type=Step)
+        JsonList.__init__(self, iterable=iterable, list_type=Step)
 
     def filter_initial_bad_readings(self):
         first_frame = 1
@@ -265,7 +265,7 @@ class Episode(JsonObject):
 
 class Episode_list(JsonList):
     def __init__(self, iterable=None):
-        JsonList.__init__(self, iterable, list_type=Episode)
+        JsonList.__init__(self, iterable=iterable, list_type=Episode)
 
 
 class Experiment(JsonObject):

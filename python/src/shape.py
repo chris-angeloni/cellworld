@@ -17,7 +17,7 @@ class Transformation(JsonObject):
 
 class Transformation_list(JsonList):
     def __init__(self, iterable=None, n=None, size=0.0, rotation=0.0):
-        JsonList.__init__(self, iterable, list_type=Transformation)
+        JsonList.__init__(self, iterable=iterable, list_type=Transformation)
         if n:
             for a in range(n):
                 self.append(Transformation(float(size), float(rotation) + float(a) * (360.0 / float(n))))
@@ -137,7 +137,7 @@ class Polygon:
 class Polygon_list(JsonList):
 
     def __init__(self, iterable=None):
-        JsonList.__init__(self, iterable, list_type=Polygon)
+        JsonList.__init__(self, iterable=iterable, list_type=Polygon)
 
     @staticmethod
     def get_polygons(centers: Location_list, sides: int, radius: float, rotation: float):

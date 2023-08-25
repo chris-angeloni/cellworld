@@ -43,7 +43,7 @@ class Coordinates(JsonObject):
 
 class Coordinates_list (JsonList):
     def __init__(self, iterable=None):
-        JsonList.__init__(self, iterable, list_type=Coordinates)
+        JsonList.__init__(self, iterable=iterable, list_type=Coordinates)
 
     def get_x(self):
         x = []

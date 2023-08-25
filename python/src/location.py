@@ -86,7 +86,7 @@ class Scale (Location):
 class Location_list(JsonList):
 
     def __init__(self, iterable=None):
-        JsonList.__init__(self, iterable, list_type=Location)
+        JsonList.__init__(self, iterable=iterable, list_type=Location)
 
     def get_x(self):
         x = []

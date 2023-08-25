@@ -27,7 +27,7 @@ class Cell(JsonObject):
 
 class Cell_group_builder(JsonList):
     def __init__(self, iterable=None):
-        JsonList.__init__(self, iterable, list_type=int)
+        JsonList.__init__(self, iterable=iterable, list_type=int)
 
     @staticmethod
     def get_from_name(world_name: str, name: str, *argv):
@@ -39,12 +39,12 @@ class Cell_group_builder(JsonList):
 
 
 class Cell_group(JsonList):
-    def __init__(self, iterable = None,
+    def __init__(self, iterable=None,
                  world = None,
                  cell_group_builder: Cell_group_builder = None):
         if cell_group_builder is None:
             cell_group_builder = []
-        JsonList.__init__(self, iterable, list_type=Cell)
+        JsonList.__init__(self, iterable=iterable, list_type=Cell)
         if world:
             for cell_id in cell_group_builder:
                 self.append(world.cells[cell_id])

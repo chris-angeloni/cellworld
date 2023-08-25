@@ -3,41 +3,64 @@ from .experiment import Trajectories
 from json_cpp import JsonObject, JsonList
 
 
+def get_ratios(a: float, b: float, v: float) -> tuple:
+    r = b - a
+    ra = (v - a) / r
+    rb = (b - v) / r
+    return ra, rb
+
+
 class StreamLine(Location_list):
-    def __init__(self, trajectory: Trajectories = None, streamline_len: int = 100):
+    class StreamLineType:
+        Distance = 0
+        Time = 1
+
+    def __init__(self, trajectory: Trajectories = None, streamline_len: int = 100, streamline_type = StreamLineType.Distance):
         Location_list.__init__(self)
+
         if trajectory is None:
             return
-        last_step_location = trajectory[0].location
-        total_dist = 0
-        for step in trajectory:
-            total_dist += last_step_location.dist(step.location)
-            last_step_location = step.location
-        streamline_step_distance = total_dist / streamline_len
-        prev_step_dist = 0
-        next_step_dist = 0
-        step_index = 0
-        prev_step_location = trajectory[0].location
-        next_step_location = prev_step_location
-        for i in range(streamline_len):
-            streamline_step_total_distance = i * streamline_step_distance
-            while next_step_dist < streamline_step_total_distance and step_index < len(trajectory):
-                prev_step_location = trajectory[step_index].location
-                prev_step_dist = next_step_dist
-                step_index += 1
-                if step_index == len(trajectory):
-                    break
-                next_step_location = trajectory[step_index].location
-                next_step_dist += prev_step_location.dist(next_step_location)
-            step_distance = prev_step_location.dist(next_step_location)
-            if step_distance > 0:
-                prev_ratio = (next_step_dist - streamline_step_total_distance) / step_distance
-                next_ratio = (streamline_step_total_distance - prev_step_dist) / step_distance
-                next_streamline_step = prev_step_location * prev_ratio + next_step_location * next_ratio
-            else:
-                next_streamline_step = next_step_location
-            self.append(next_streamline_step)
-        self.append(trajectory[-1].location)
+
+        if streamline_type == StreamLine.StreamLineType.Distance:
+            last_step_location = trajectory[0].location
+            total_dist = 0
+            distances = []
+            for step in trajectory:
+                total_dist += last_step_location.dist(step.location)
+                distances.append(total_dist)
+                last_step_location = step.location
+            streamline_step_dist = total_dist / streamline_len
+            step_index = 0
+            for i in range(streamline_len):
+                streamline_step_total_dist = i * streamline_step_dist
+                while distances[step_index] < streamline_step_total_dist and step_index < len(trajectory):
+                    step_index += 1
+                    if step_index == len(trajectory):
+                        break
+                if step_index > 0:
+                    prev_ratio, next_ratio = get_ratios(distances[step_index - 1], distances[step_index], streamline_step_total_dist)
+                    next_streamline_step = trajectory[step_index-1].location * prev_ratio + trajectory[step_index].location * next_ratio
+                else:
+                    next_streamline_step = trajectory[step_index].location
+                self.append(next_streamline_step)
+            self.append(trajectory[-1].location)
+        else:
+            total_time = trajectory[-1].time_stamp - trajectory[0].time_stamp
+            streamline_step_time = total_time / streamline_len
+            step_index = 0
+            for i in range(streamline_len):
+                streamline_step_total_time = trajectory[0].time_stamp + i * streamline_step_time
+                while trajectory[step_index].time_stamp < streamline_step_total_time and step_index < len(trajectory):
+                    step_index += 1
+                    if step_index == len(trajectory):
+                        break
+                if step_index > 0:
+                    prev_ratio, next_ratio = get_ratios(trajectory[step_index-1].time_stamp, trajectory[step_index].time_stamp, streamline_step_total_time)
+                    next_streamline_step = trajectory[step_index-1].location * prev_ratio + trajectory[step_index].location * next_ratio
+                else:
+                    next_streamline_step = trajectory[step_index].location
+                self.append(next_streamline_step)
+            self.append(trajectory[-1].location)
 
     def distance(self, streamline) -> float:
         if len(self) != len(streamline):
