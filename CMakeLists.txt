@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(cellworld
         VERSION 2019.1.0
-        DESCRIPTION "Agent cell world simulation framework"
+        DESCRIPTION "Agent cell world simulation framework "
         LANGUAGES CXX)
 
 ####
