@@ -17,7 +17,8 @@ class StreamLine(Location_list):
 
     def __init__(self, trajectory: Trajectories = None, streamline_len: int = 100, streamline_type = StreamLineType.Distance):
         Location_list.__init__(self)
-
+        self.closest_steps = JsonList(list_type=int)
+        self.interval = 0
         if trajectory is None:
             return
 
@@ -30,6 +31,7 @@ class StreamLine(Location_list):
                 distances.append(total_dist)
                 last_step_location = step.location
             streamline_step_dist = total_dist / streamline_len
+            self.interval = streamline_step_dist
             step_index = 0
             for i in range(streamline_len):
                 streamline_step_total_dist = i * streamline_step_dist
@@ -43,10 +45,12 @@ class StreamLine(Location_list):
                 else:
                     next_streamline_step = trajectory[step_index].location
                 self.append(next_streamline_step)
+                self.closest_steps.append(step_index)
             self.append(trajectory[-1].location)
         else:
             total_time = trajectory[-1].time_stamp - trajectory[0].time_stamp
             streamline_step_time = total_time / streamline_len
+            self.interval = streamline_step_time
             step_index = 0
             for i in range(streamline_len):
                 streamline_step_total_time = trajectory[0].time_stamp + i * streamline_step_time
@@ -60,6 +64,7 @@ class StreamLine(Location_list):
                 else:
                     next_streamline_step = trajectory[step_index].location
                 self.append(next_streamline_step)
+                self.closest_steps.append(step_index)
             self.append(trajectory[-1].location)
 
     def distance(self, streamline) -> float:
