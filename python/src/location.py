@@ -12,14 +12,6 @@ class Location(JsonObject):
         self.x = float(x)
         self.y = float(y)
 
-    def __iter__(self):
-        yield self.x
-        yield self.y
-
-    def __iter__(self):
-        yield self.x
-        yield self.y
-
     def __hash__(self):
         hash((self.x, self.y))
 
@@ -85,8 +77,8 @@ class Scale (Location):
 
 class Location_list(JsonList):
 
-    def __init__(self, iterable=None):
-        JsonList.__init__(self, iterable=iterable, list_type=Location)
+    def __init__(self, iterable=None, allow_empty=False):
+        JsonList.__init__(self, iterable=iterable, list_type=Location, allow_empty=allow_empty)
 
     def get_x(self):
         x = []
@@ -101,16 +93,17 @@ class Location_list(JsonList):
         return y
 
     def total_distance(self) -> float:
-        return self.distances()[-1]
+        return self.distance_from_start()[-1]
 
     def distance_from_start(self) -> list:
         ds = JsonList(list_type=float)
         d = 0
         ll = self[0]
         for l in self:
-            d += l.dist(ll)
-            ds.append(d)
-            ll = l
+            if ll is not None:
+                d += l.dist(ll)
+                ds.append(d)
+                ll = l
         return ds
 
 

@@ -6,6 +6,7 @@ from .shape import Space
 from .world import World_implementation, World
 from .cell import Cell_group_builder
 from datetime import datetime
+from bisect import bisect_left, bisect_right
 
 
 class Step(JsonObject):
@@ -83,52 +84,55 @@ class Trajectories(JsonList):
             first_frame = i
         del self[0:first_frame-1]
 
-    def get_step_index_by_time_stamp(self, time_stamp: float, exact: bool = False) -> int:
-        if len(self) == 1:
-            if self[0].time_stamp != time_stamp and exact:
-                raise RuntimeError("Time_stamp %i not found", time_stamp)
-            else:
-                return 0
-        m = len(self) // 2
-        if self[m].time_stamp == time_stamp:
-            return m
-        if time_stamp > self[m].time_stamp:
-            return m + Trajectories.get_step_index_by_time_stamp(self[m:], time_stamp, exact)
-        else:
-            return Trajectories.get_step_index_by_time_stamp(self[:m], time_stamp, exact)
+    class SearchType:
+        Left = -1
+        Exact = 0
+        Right = 1
 
-    def get_step_by_time_stamp(self, time_stamp: float, exact: bool = False) -> Step:
-        step_index = self.get_step_index_by_time_stamp(time_stamp, exact)
+    def get_step_index_by_time_stamp(self, time_stamp: float, search_type: int = SearchType.Exact) -> int:
+        if search_type == Trajectories.SearchType.Left:
+            i = bisect_left(self, time_stamp, key=lambda s: s.time_stamp)
+        else:
+            i = bisect_right(self, time_stamp, key=lambda s: s.time_stamp)
+        if search_type == Trajectories.SearchType.Exact and (i >= len(self) or self[i].time_stamp != time_stamp):
+            raise RuntimeError("Time_stamp %f not found", time_stamp)
+        return i
+
+    def get_step_by_time_stamp(self, time_stamp: float, search_type: int = SearchType.Exact) -> Step:
+        step_index = self.get_step_index_by_time_stamp(time_stamp, search_type)
         return self[step_index]
 
-    def get_step_index_by_frame(self, frame: int, exact: bool = True) -> int:
-        if len(self) == 1:
-            if self[0].frame != frame and exact:
-                raise RuntimeError("Frame %i not found", frame)
-            else:
-                return 0
-        m = len(self) // 2
-        if self[m].frame == frame:
-            return m
-        if frame > self[m].frame:
-            return m + Trajectories.get_step_index_by_frame(self[m:], frame, exact)
+    def get_step_index_by_frame(self, frame: int, search_type: int = SearchType.Exact) -> int:
+        if search_type == Trajectories.SearchType.Left:
+            i = bisect_left(self, frame, key=lambda s: s.frame)
         else:
-            return Trajectories.get_step_index_by_frame(self[:m], frame, exact)
+            i = bisect_right(self, frame, key=lambda s: s.frame)
+        if search_type == Trajectories.SearchType.Exact and (i >= len(self) or self[i].frame != frame):
+            raise RuntimeError("Frame %i not found", frame)
+        return i
 
-    def get_step_by_frame(self, frame: int, exact: bool = True) -> Step:
+    def get_step_by_frame(self, frame: int, search_type: int = SearchType.Exact) -> Step:
         try:
-            step_index = self.get_step_index_by_frame(frame, exact)
+            step_index = self.get_step_index_by_frame(frame, search_type)
             return self[step_index]
         except:
             return None
 
-    def get_segment(self, start_frame=0, end_frame=None, start_time=0, end_time=None):
+    def get_segment(self, start_frame=None, end_frame=None, start_time=None, end_time=None):
         segment = Trajectories()
-        for step in self:
-            if step.frame < start_frame or (end_frame and step.frame > end_frame):
-                continue
-            if step.time_stamp < start_time or (end_time and step.time_stamp > end_time):
-                continue
+        s = 0
+        e = len(self) - 1
+        if start_time is not None:
+            s = self.get_step_index_by_time_stamp(start_time, search_type=Trajectories.SearchType.Right)
+        if start_frame is not None:
+            s = self.get_step_index_by_frame(start_frame, search_type=Trajectories.SearchType.Right)
+
+        if end_time is not None:
+            e = self.get_step_index_by_time_stamp(end_time, search_type=Trajectories.SearchType.Left)
+        if end_frame is not None:
+            e = self.get_step_index_by_frame(end_frame, search_type=Trajectories.SearchType.Left)
+
+        for step in self[s:e]:
             segment.append(step)
         return segment
 

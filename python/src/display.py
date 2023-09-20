@@ -110,15 +110,18 @@ class Display:
         self.cell_zorder = cell_zorder
         self.occluded_cell_zorder = occluded_cell_zorder
         self.habitat_zorder = habitat_zorder
-        self._draw_cells__()
+        self.__draw_cells__()
         self.on_cell_click = None
         self.on_background_click = None
         self.on_click = None
         self.on_key_press = None
+        self.on_mouse_move = None
         self.track_click = False
         matplotlib.pyplot.tight_layout()
 
     def __process_click__(self, event):
+        if event.xdata is None or event.ydata is None:
+            return
         location = Location(event.xdata, event.ydata)
         cell_id = self.world.cells.find(location)
         cell = self.world.cells[cell_id]
@@ -129,6 +132,18 @@ class Display:
             self.on_background_click(event.button, location)
         if self.on_click:
             self.on_click(event.button)
+
+    def __process_mouse_move__(self, event):
+        if event.xdata is None or event.ydata is None:
+            return
+        location = Location(event.xdata, event.ydata)
+        if self.on_mouse_move:
+            cell_id = self.world.cells.find(location)
+            cell = self.world.cells[cell_id]
+            if cell.location.dist(location) < self.world.implementation.cell_transformation.size / 2:
+                self.on_mouse_move(location, cell)
+            else:
+                self.on_mouse_move(location)
 
     def set_key_pressed_event(self, callback):
         self.on_key_press = callback
@@ -154,7 +169,13 @@ class Display:
             self.track_click = True
         self.on_click = callback
 
-    def _draw_cells__(self):
+    def set_mouse_move_event(self, callback):
+        self.fig.canvas.mpl_connect('motion_notify_event', self.__process_mouse_move__)
+        self.track_mouse_move = True
+        self.on_mouse_move = callback
+
+
+    def __draw_cells__(self):
         [p.remove() for p in reversed(self.ax.patches)]
         for cell in self.world.cells:
             color = self.occlusion_color if cell.occluded else self.cell_color
@@ -195,7 +216,7 @@ class Display:
 
     def set_occlusions(self, occlusions: Cell_group_builder):
         self.world.set_occlusions(occlusions)
-        self._draw_cells__()
+        self.__draw_cells__()
 
     def set_agent_marker(self, agent_name: str, marker: matplotlib.path.Path):
         self.agents_markers[agent_name] = marker
@@ -341,7 +362,7 @@ class Display:
 
     def set_background(self, background, alpha: float = 1):
         self.ax.imshow(background, extent=self.background_extent, alpha=alpha)
-        self._draw_cells__()
+        self.__draw_cells__()
 
     def add_icon(self, location: Location, icon_name: str = "", icon_file_path: str = "", rotation: float = 0, size: float = .05, zorder: int = -5, alpha:float = 1):
         from matplotlib import image
