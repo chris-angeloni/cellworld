@@ -1,5 +1,5 @@
 def __module_version__():
-	return 0, 0, 326 
+	return 0, 0, 344 
 
 
 def __module_name__():
@@ -44,10 +44,6 @@ def __package_name__():
 
 def __files__():
 	return ['info.py', 'cell.py', 'frame.py', 'graph.py', 'agent_markers.py', 'coordinates.py', 'display.py', 'experiment.py', 'location.py', 'shape.py', 'util.py', 'visibility.py', 'world.py', 'capture.py', 'QuickBundles.py', 'path.py'] 
-
-
-def __additional_files__():
-	return ['mouse.png', 'robot.png'] 
 
 
 def __setup_py__():
