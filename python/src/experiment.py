@@ -1,4 +1,4 @@
-from json_cpp import JsonObject, JsonList
+from json_cpp import JsonObject, JsonList, JsonString
 from .util import *
 from .coordinates import *
 from .location import *
@@ -24,7 +24,7 @@ class Step(JsonObject):
             location = Location(0, 0)
         self.location = location
         self.rotation = rotation
-        self.data = data
+        self.data = JsonString(data)
 
 
 class Velocities(JsonList):
