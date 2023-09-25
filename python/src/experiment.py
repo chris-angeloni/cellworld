@@ -217,12 +217,7 @@ class Trajectories(JsonList):
         return self.where("agent_name", agent_name)
 
     def split_by_agent(self) -> dict:
-        split = {}
-        for s in self:
-            if s.agent_name not in split:
-                split[s.agent_name] = Trajectories()
-            split[s.agent_name].append(s)
-        return split
+        return self.split_by("agent_name")
 
 
 class Episode(JsonObject):
