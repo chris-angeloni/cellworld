@@ -3,12 +3,12 @@ from easy_pack import EasyPackModule
 from os import path, system
 
 module = EasyPackModule.read('.')
-if not path.exists('setup/setup.py') or path.getctime('__info__.py') > path.getctime('setup/setup.py'):
+if not os.path.exists('setup/setup.py') or os.path.getctime('__info__.py') > os.path.getctime('setup/setup.py'):
 	print('package info file has changed, rebuilding setup')
 	module.create_setup_files('../setup')
 build = module.build_module('python-build')
 if build:
-	print('build succeded')
+	print(f'build succeeded: {build}')
 	if '-upload' in sys.argv:
 		import os
 		username = ""
