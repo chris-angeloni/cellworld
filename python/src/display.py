@@ -182,9 +182,9 @@ class Display:
             edge_color = self.occluded_cell_edge_color if cell.occluded else self.cell_edge_color
             fill = True if cell.occluded else self.cell_fill
             visible = self.show_occluded_cell if cell.occluded else self.show_cell
-            self.cell_outline_polygons.append(self.ax.add_patch(matplotlib.patches.RegularPolygon((cell.location.x, cell.location.y),
-                                                                               self.world.configuration.cell_shape.sides,
-                                                                               self.cells_size,
+            self.cell_outline_polygons.append(self.ax.add_patch(matplotlib.patches.RegularPolygon(xy=(cell.location.x, cell.location.y),
+                                                                               numVertices=self.world.configuration.cell_shape.sides,
+                                                                               radius=self.cells_size,
                                                                                facecolor=color,
                                                                                edgecolor=edge_color,
                                                                                orientation=self.cells_theta,
@@ -193,9 +193,9 @@ class Display:
                                                                                alpha=self.cell_outline_alpha,
                                                                                fill=fill,
                                                                                visible=visible)))
-            self.cell_polygons.append(self.ax.add_patch(matplotlib.patches.RegularPolygon((cell.location.x, cell.location.y),
-                                                                       self.world.configuration.cell_shape.sides,
-                                                                       self.cells_size * self.outline,
+            self.cell_polygons.append(self.ax.add_patch(matplotlib.patches.RegularPolygon(xy=(cell.location.x, cell.location.y),
+                                                                       numVertices=self.world.configuration.cell_shape.sides,
+                                                                       radius=self.cells_size * self.outline,
                                                                        facecolor=color,
                                                                        orientation=self.cells_theta,
                                                                        zorder=self.cell_zorder,
@@ -203,9 +203,9 @@ class Display:
                                                                        alpha=self.cell_alpha,
                                                                        fill=fill,
                                                                        visible=visible)))
-        self.habitat_polygon = self.ax.add_patch(matplotlib.patches.RegularPolygon((self.xcenter, self.ycenter),
-                                                                self.world.implementation.space.shape.sides,
-                                                                self.habitat_size,
+        self.habitat_polygon = self.ax.add_patch(matplotlib.patches.RegularPolygon(xy=(self.xcenter, self.ycenter),
+                                                                numVertices=self.world.implementation.space.shape.sides,
+                                                                radius=self.habitat_size,
                                                                 facecolor=self.habitat_color,
                                                                 edgecolor=self.habitat_edge_color,
                                                                 orientation=self.habitat_theta,
